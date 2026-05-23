@@ -422,14 +422,18 @@ body{background:#f9f9ff;}
 <div class="toast" id="toast"></div>
 
 <script>
-// Load cart from localStorage
-var cart = [];
-try {
-  cart = JSON.parse(localStorage.getItem('sp-cart') || '[]');
-} catch(e) {
-  cart = [];
+// Read cart - try multiple times to handle timing
+function loadCart() {
+  try {
+    var raw = localStorage.getItem('sp-cart');
+    if (raw && raw !== 'null' && raw !== '[]') {
+      return JSON.parse(raw);
+    }
+  } catch(e) {}
+  return [];
 }
 
+var cart = loadCart();
 
 function saveCart() {
   localStorage.setItem('sp-cart', JSON.stringify(cart));
@@ -476,33 +480,36 @@ function render() {
   var summaryLines = document.getElementById('summary-lines');
   var totalEl = document.getElementById('total-price');
 
+  // Reload cart fresh in case it was updated
+  cart = loadCart();
+  updateBadge();
+
   if (!cart || cart.length === 0) {
-    container.innerHTML = '<div class="cart-empty"><p>Your cart is empty.</p><a href="index.html">← Continue Shopping</a></div>';
-    summaryLines.innerHTML = '';
-    totalEl.textContent = '€0,00';
+    container.innerHTML = '<div class="cart-empty"><p>Your cart is empty.</p><a href="index.html">&#8592; Continue Shopping</a></div>';
+    if (summaryLines) summaryLines.innerHTML = '';
+    if (totalEl) totalEl.textContent = '€0,00';
     return;
   }
 
   var total = 0;
   var summaryHtml = '';
-
   var tableHtml = '<table class="cart-table">';
   tableHtml += '<thead><tr><th>Product</th><th>Unit Price</th><th>Quantity</th><th>Total</th><th></th></tr></thead><tbody>';
 
   cart.forEach(function(item) {
-    var lineTotal = item.price * item.qty;
+    var lineTotal = (item.price || 0) * item.qty;
     total += lineTotal;
 
     tableHtml += '<tr>';
     tableHtml += '<td><div class="item-name">' + item.name + '</div><div class="item-sku">' + item.sku + '</div></td>';
     tableHtml += '<td><span class="item-price">' + fmt(item.price) + '</span></td>';
     tableHtml += '<td><div class="qty-control">';
-    tableHtml += '<button onclick="changeQty('' + item.sku + '',-1)">−</button>';
-    tableHtml += '<input type="number" value="' + item.qty + '" min="1" onchange="updateQty('' + item.sku + '',this.value)" onblur="updateQty('' + item.sku + '',this.value)">';
+    tableHtml += '<button onclick="changeQty('' + item.sku + '',-1)">&#8722;</button>';
+    tableHtml += '<input type="number" value="' + item.qty + '" min="1" onchange="updateQty('' + item.sku + '',this.value)">';
     tableHtml += '<button onclick="changeQty('' + item.sku + '',1)">+</button>';
     tableHtml += '</div></td>';
     tableHtml += '<td><span class="item-price">' + fmt(lineTotal) + '</span></td>';
-    tableHtml += '<td><button class="btn-remove" onclick="removeItem('' + item.sku + '')" title="Remove item">';
+    tableHtml += '<td><button class="btn-remove" onclick="removeItem('' + item.sku + '')" title="Remove">';
     tableHtml += '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
     tableHtml += '</button></td>';
     tableHtml += '</tr>';
@@ -511,45 +518,73 @@ function render() {
   });
 
   tableHtml += '</tbody></table>';
-  tableHtml += '<div class="cart-footer-row"><a href="index.html" style="font-size:13px;color:#815500;text-decoration:none;">← Continue Shopping</a></div>';
+  tableHtml += '<div style="margin-top:12px;"><a href="index.html" style="font-size:13px;color:#815500;text-decoration:none;">&#8592; Continue Shopping</a></div>';
 
   container.innerHTML = tableHtml;
-  summaryLines.innerHTML = summaryHtml;
-  totalEl.textContent = fmt(total);
+  if (summaryLines) summaryLines.innerHTML = summaryHtml;
+  if (totalEl) totalEl.textContent = fmt(total);
 }
 
 function buildBody() {
   var lines = cart.map(function(i) {
-    return i.sku + ' %E2%80%94 ' + encodeURIComponent(i.name) + ' x' + i.qty + ' %3D ' + fmt(i.price * i.qty);
+    return encodeURIComponent(i.sku + ' - ' + i.name + ' x' + i.qty + ' = ' + fmt(i.price * i.qty));
   });
-  var total = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
-  lines.push('');
-  lines.push('TOTAL%3A ' + fmt(total));
+  var total = cart.reduce(function(s, i) { return s + (i.price || 0) * i.qty; }, 0);
+  lines.push(encodeURIComponent(''));
+  lines.push(encodeURIComponent('TOTAL: ' + fmt(total)));
   return lines.join('%0A');
 }
 
 function placeOrder() {
+  cart = loadCart();
   if (!cart || cart.length === 0) {
     alert('Your cart is empty. Please add products first.');
     return;
   }
-  var body = 'Hello%20Sorbpack%2C%0A%0AI%20would%20like%20to%20place%20the%20following%20order%3A%0A%0A' + buildBody() + '%0A%0APlease%20confirm%20availability%20and%20send%20me%20a%20payment%20link%20or%20invoice.%0A%0AMy%20contact%20details%3A%0AName%3A%20%0ACompany%3A%20%0APhone%3A%20%0ADelivery%20address%3A%20%0A%0AKind%20regards';
-  window.location.href = 'mailto:info@sorbpack.com?subject=Order%20Request%20%E2%80%94%20Sorbpack&body=' + body;
+  var subject = encodeURIComponent('Order Request - Sorbpack');
+  var body = encodeURIComponent('Hello Sorbpack,
+
+I would like to place the following order:
+
+') + buildBody() + encodeURIComponent('
+
+Please confirm and send payment link or invoice.
+
+My contact details:
+Name: 
+Company: 
+Phone: 
+Delivery address: 
+
+Kind regards');
+  window.location.href = 'mailto:info@sorbpack.com?subject=' + subject + '&body=' + body;
 }
 
 function requestQuote() {
+  cart = loadCart();
   if (!cart || cart.length === 0) {
     alert('Your cart is empty. Please add products first.');
     return;
   }
-  var body = 'Hello%20Sorbpack%2C%0A%0AI%20would%20like%20a%20bulk%20quote%20for%3A%0A%0A' + buildBody() + '%0A%0AMy%20contact%20details%3A%0AName%3A%20%0ACompany%3A%20%0APhone%3A%20%0ADelivery%20address%3A%20%0A%0AKind%20regards';
-  window.location.href = 'mailto:info@sorbpack.com?subject=Bulk%20Quote%20Request%20%E2%80%94%20Sorbpack&body=' + body;
+  var subject = encodeURIComponent('Bulk Quote Request - Sorbpack');
+  var body = encodeURIComponent('Hello Sorbpack,
+
+I would like a bulk quote for:
+
+') + buildBody() + encodeURIComponent('
+
+My contact details:
+Name: 
+Company: 
+Phone: 
+Delivery address: 
+
+Kind regards');
+  window.location.href = 'mailto:info@sorbpack.com?subject=' + subject + '&body=' + body;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  updateBadge();
-  render();
-});
+// Run immediately
+render();
 </script>
 
 </body>
