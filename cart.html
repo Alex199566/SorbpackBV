@@ -429,13 +429,7 @@ try {
 } catch(e) {
   cart = [];
 }
-// If running locally (file://) add demo items so layout is visible
-if (cart.length === 0 && window.location.protocol === 'file:') {
-  cart = [
-    {sku:'SP-DB-1KG', name:'Desiccant Dry Bags 1kg', price:1520, qty:2},
-    {sku:'SP-AM-250', name:'Anti-Slip Mat 250x5000x8mm', price:1012.50, qty:1}
-  ];
-}
+
 
 function saveCart() {
   localStorage.setItem('sp-cart', JSON.stringify(cart));
