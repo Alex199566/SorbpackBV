@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Cart — Sorbpack</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Hanken+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0b1f3a;
+  --navy-dark:#000615;
+  --amber:#feb234;
+  --amber-dark:#e09a20;
+  --amber-text:#815500;
+  --white:#ffffff;
+  --bg:#f9f9ff;
+  --surface-low:#f0f3ff;
+  --surface:#e7eeff;
+  --surface-high:#dee8ff;
+  --border:#c4c6ce;
+  --text:#111c2c;
+  --text2:#44474d;
+  --muted:#75777e;
+  --green:#1a7a4a;
+  --green-bg:#e8f5ee;
+}
+body{font-family:'Hanken Grotesk',sans-serif;color:var(--text);background:var(--bg);font-size:14px;line-height:1.5}
+
+/* ANNOUNCEMENT BAR */
+.announce{background:var(--navy);color:rgba(255,255,255,0.85);text-align:center;padding:8px 24px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.06em;display:flex;align-items:center;justify-content:center;gap:24px;}
+.announce a{color:var(--amber);text-decoration:none;font-weight:500}
+
+/* NAV */
+nav{background:var(--navy);height:58px;display:flex;align-items:center;position:sticky;top:0;z-index:300;border-bottom:1px solid rgba(255,255,255,0.06)}
+.nav-inner{width:100%;display:flex;align-items:center;padding:0 24px;gap:0}
+.logo{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;color:#ffffff;letter-spacing:0.04em;text-decoration:none;margin-right:32px;white-space:nowrap}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{color:rgba(255,255,255,0.65);font-family:'Hanken Grotesk',sans-serif;font-size:13px;font-weight:500;text-decoration:none;padding:6px 12px;transition:color 0.15s;white-space:nowrap}
+.nav-link:hover{color:#fff}
+.nav-link.active{color:var(--amber)}
+.nav-search{margin-left:auto;margin-right:16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;gap:8px;padding:7px 14px;width:280px}
+.nav-search input{background:none;border:none;outline:none;color:#fff;font-family:'Hanken Grotesk',sans-serif;font-size:13px;width:100%}
+.nav-search input::placeholder{color:rgba(255,255,255,0.35)}
+.nav-icons{display:flex;align-items:center;gap:14px}
+.icon-btn{background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;padding:4px;position:relative;text-decoration:none;display:flex;align-items:center}
+.icon-btn:hover{color:#fff}
+.cart-dot{position:absolute;top:-6px;right:-7px;background:var(--amber);color:var(--navy);font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.btn-quote{background:var(--amber);color:var(--navy);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.07em;text-transform:uppercase;padding:9px 20px;border:none;cursor:pointer;text-decoration:none;transition:background 0.15s;white-space:nowrap}
+.btn-quote:hover{background:var(--amber-dark)}
+
+/* LAYOUT */
+.layout{display:flex;min-height:calc(100vh - 90px)}
+
+/* SIDEBAR */
+.sidebar{width:196px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto}
+.sidebar-top{padding:18px 16px 6px}
+.sidebar-title{font-weight:600;font-size:13px;color:var(--text)}
+.sidebar-subtitle{font-size:11px;color:var(--muted);margin-top:2px}
+.s-divider{height:1px;background:var(--border);margin:10px 0}
+.s-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;color:var(--muted);text-decoration:none;border-left:3px solid transparent;transition:all 0.12s}
+.s-item:hover{color:var(--text);background:var(--surface-low)}
+.s-item.active{color:var(--text);background:var(--surface-high);border-left-color:#4d5f7d;font-weight:500}
+.s-item svg{flex-shrink:0;width:15px;height:15px}
+.sidebar-bottom{margin-top:auto;padding:14px}
+.stool{background:var(--surface-high);padding:14px;margin-bottom:10px}
+.stool-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:3px}
+.stool-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--text);text-transform:uppercase;margin-bottom:5px}
+.stool-desc{font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:12px}
+.btn-stool{background:var(--navy);color:#fff;border:none;padding:9px;width:100%;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.15s}
+.btn-stool:hover{background:#132d52}
+.s-bottom-link{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;color:var(--muted);cursor:pointer;border-top:1px solid var(--border)}
+.s-bottom-link:hover{color:var(--text)}
+
+/* MAIN */
+.main{flex:1;min-width:0}
+
+/* HERO */
+.hero{position:relative;height:500px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 60%;transition:opacity 0.7s ease}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,31,58,0.88) 0%,rgba(11,31,58,0.60) 52%,rgba(11,31,58,0.05) 100%)}
+.hero-content{position:relative;z-index:2;height:100%;display:flex;align-items:center;padding:0 52px}
+.hero-inner{max-width:580px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,0.3);padding:5px 14px;margin-bottom:18px}
+.hero-badge span{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,0.85);letter-spacing:0.1em;text-transform:uppercase}
+.hero-h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:58px;color:#fff;line-height:1.0;text-transform:uppercase;margin-bottom:14px;letter-spacing:0.01em;transition:opacity 0.35s}
+.hero-p{font-size:15px;color:rgba(255,255,255,0.8);line-height:1.65;max-width:460px;margin-bottom:26px;transition:opacity 0.35s}
+.hero-btns{display:flex;gap:12px;margin-bottom:26px}
+.btn-shop{background:var(--amber);color:var(--navy);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.08em;text-transform:uppercase;padding:14px 32px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:background 0.15s}
+.btn-shop:hover{background:var(--amber-dark)}
+.btn-ghost{background:transparent;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.08em;text-transform:uppercase;padding:13px 28px;border:2px solid rgba(255,255,255,0.4);text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.15s}
+.btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
+.hero-certs{display:flex;gap:0;border-top:1px solid rgba(255,255,255,0.12);padding-top:16px}
+.hero-cert{padding-right:20px;border-right:1px solid rgba(255,255,255,0.12)}
+.hero-cert:last-child{padding-left:20px;border-right:none;padding-right:0}
+.hero-cert-std{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:0.06em;margin-bottom:2px}
+.hero-cert-name{font-size:11px;color:rgba(255,255,255,0.75);font-weight:500}
+.slide-dots{position:absolute;bottom:20px;left:52px;display:flex;gap:8px;z-index:3}
+.sdot{height:4px;background:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.3s}
+
+/* TRUST BAR */
+.trust-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0 36px;display:flex;align-items:center;gap:0;overflow-x:auto}
+.trust-item{display:flex;align-items:center;gap:10px;padding:13px 24px;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+.trust-item:last-child{border-right:none}
+.trust-icon{color:var(--amber-text);flex-shrink:0}
+.trust-label{font-size:12px;font-weight:600;color:var(--text)}
+.trust-sub{font-size:11px;color:var(--muted)}
+
+/* FILTER BAR */
+.filter-bar{background:var(--surface-low);border-bottom:2px solid var(--border);display:flex;align-items:flex-end;padding:0 36px;position:sticky;top:58px;z-index:100}
+.f-tab{padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all 0.15s}
+.f-tab:hover{color:var(--text)}
+.f-tab.active{color:var(--text);border-bottom-color:var(--amber)}
+.f-sort{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding-bottom:12px}
+.f-sort select{border:1px solid var(--border);padding:5px 10px;font-family:'Hanken Grotesk',sans-serif;font-size:12px;color:var(--text);background:var(--white);outline:none;cursor:pointer}
+
+/* PRODUCTS SECTION */
+.products-wrap{padding:28px 36px}
+.sec-hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;color:var(--text)}
+.sec-sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+.view-all{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--amber-text);text-decoration:none;display:flex;align-items:center;gap:4px}
+.view-all:hover{color:var(--amber-dark)}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px}
+
+/* PRODUCT CARD */
+.pcard{background:#ffffff;border:1px solid #e8e8e8;display:flex;flex-direction:column;transition:box-shadow 0.2s,border-color 0.2s;cursor:pointer}
+.pcard:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1);border-color:#ddd}
+.pcard-img{height:190px;overflow:hidden;background:#f5f7fa;position:relative;}.pcard-img-white{background:#fff!important;}.pcard-img-white img{object-fit:contain!important;padding:12px;height:190px;}
+
+.pcard:hover 
+.pbadge{position:absolute;top:10px;left:10px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;padding:3px 8px;letter-spacing:0.06em;text-transform:uppercase}
+.pb-instock{background:#111c2c;color:#fff}
+.pb-top{background:#111c2c;color:#fff}
+.pb-best{background:var(--amber);color:var(--navy)}
+.pb-new{background:#1a5fa8;color:#fff}
+.pcard-body{padding:14px;flex:1;display:flex;flex-direction:column}
+.pcard-sku{font-family:'Hanken Grotesk',sans-serif;font-size:10px;color:#aaa;letter-spacing:0.02em;margin-bottom:4px}
+.pcard-name{font-family:'Hanken Grotesk',sans-serif;font-weight:700;font-size:15px;color:#111;line-height:1.2;margin-bottom:6px}
+.pcard-desc{font-size:12px;color:#777;line-height:1.5;margin-bottom:10px;flex:1}
+.pcard-specs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e8e8e8;margin-bottom:10px;background:#fff}
+.pspec{padding:6px 8px;border-right:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8}
+.pspec:nth-child(even){border-right:none}
+.pspec-l{font-family:'Hanken Grotesk',sans-serif;font-size:9px;color:#aaa;letter-spacing:0.02em;text-transform:uppercase;display:block;margin-bottom:1px}
+.pspec-v{font-weight:600;font-size:12px;color:#222;display:block}
+.pcard-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid #f0f0f0;margin-top:auto}
+.pprice-lbl{font-family:'Hanken Grotesk',sans-serif;font-size:9px;color:#aaa;letter-spacing:0.04em;text-transform:uppercase;display:block;margin-bottom:2px}
+.pprice{font-family:'Hanken Grotesk',sans-serif;font-weight:700;font-size:20px;color:#111}
+.pprice-unit{font-size:11px;color:var(--muted);font-family:'Hanken Grotesk',sans-serif;font-weight:400}
+.btn-addcart{background:#feb234;border:none;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s;flex-shrink:0;border-radius:2px}
+.btn-addcart:hover{background:var(--amber-dark)}
+.btn-addcart svg{color:var(--navy)}
+
+/* WHY US SECTION */
+.why-section{background:var(--navy);padding:48px 36px}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.why-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:24px}
+.why-icon{width:40px;height:40px;background:rgba(254,178,52,0.15);border:1px solid rgba(254,178,52,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.why-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:#fff;text-transform:uppercase;margin-bottom:8px}
+.why-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6}
+
+/* COMPARISON */
+.comp-section{background:var(--navy);padding:0 36px 48px}
+.comp-inner{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.comp-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--amber);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px}
+.comp-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;color:#fff;line-height:1.15;margin-bottom:10px}
+.comp-desc{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:24px}
+.comp-table{width:100%;border-collapse:collapse;margin-bottom:20px}
+.comp-table th{text-align:left;padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--amber)}
+.comp-table th:first-child{color:rgba(255,255,255,0.5)}
+.comp-table th.th-s{color:var(--amber)}
+.comp-table th.th-g{color:rgba(255,255,255,0.35)}
+.comp-table td{padding:10px 10px;font-size:12px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.comp-table td:first-child{color:rgba(255,255,255,0.8);font-weight:600}
+.comp-table td.td-s{color:var(--amber);font-weight:500}
+.comp-table td.td-g{color:rgba(255,255,255,0.35)}
+.comp-table tr:nth-child(even) td{background:rgba(255,255,255,0.03)}
+.comp-dl{display:inline-flex;align-items:center;gap:8px;color:var(--amber);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(254,178,52,0.3);padding-bottom:2px}
+.comp-img-wrap{position:relative}
+.comp-img-wrap img{width:100%;height:250px;object-fit:cover;display:block}
+.comp-quote{background:rgba(0,0,0,0.6);padding:16px 20px;border-left:3px solid var(--amber)}
+.comp-quote-text{font-size:13px;color:rgba(255,255,255,0.85);font-style:italic;line-height:1.55;margin-bottom:8px}
+.comp-quote-author{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--amber);letter-spacing:0.08em}
+
+/* CERT BAR */
+.cert-bar{background:#eaecf0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 36px}
+.cert-bar-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;text-align:center;margin-bottom:14px}
+.cert-items{display:flex;justify-content:center;gap:0}
+.cert-item{text-align:center;padding:0 32px;border-right:1px solid var(--border)}
+.cert-item:last-child{border-right:none}
+.cert-code{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--navy);text-decoration:underline;text-decoration-color:var(--amber);text-underline-offset:3px}
+.cert-name{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* CTA BAND */
+.cta-band{background:var(--amber);padding:32px 36px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.cta-band-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:var(--navy);text-transform:uppercase}
+.cta-band-sub{font-size:13px;color:rgba(11,31,58,0.7);margin-top:4px}
+.btn-cta-dark{background:var(--navy);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.07em;text-transform:uppercase;padding:14px 32px;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:background 0.15s;white-space:nowrap}
+.btn-cta-dark:hover{background:#132d52}
+
+/* FOOTER */
+footer{background:#0b1f3a;padding:48px 36px 24px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-logo{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#fff;margin-bottom:10px;display:block;letter-spacing:0.04em}
+.footer-desc{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;max-width:240px}
+.footer-whatsapp{display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.04em;text-transform:uppercase;text-decoration:none;margin-top:14px}
+.f-col-title{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--amber);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px}
+.f-links{list-style:none;display:flex;flex-direction:column;gap:8px}
+.f-links a{font-size:12px;color:rgba(255,255,255,0.5);text-decoration:none;transition:color 0.15s}
+.f-links a:hover{color:var(--amber)}
+.f-nl{display:flex;gap:0;margin-top:6px}
+.f-nl input{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:9px 12px;font-family:'Hanken Grotesk',sans-serif;font-size:12px;outline:none}
+.f-nl input::placeholder{color:rgba(255,255,255,0.3)}
+.f-nl button{background:var(--amber);color:var(--navy);border:none;padding:9px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+.f-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:11px;color:rgba(255,255,255,0.3)}
+.f-bottom a{color:rgba(255,255,255,0.3);text-decoration:none}
+.f-bottom a:hover{color:var(--amber)}
+
+/* CHAT BUBBLE */
+.chat-bubble{position:fixed;bottom:24px;right:24px;background:var(--amber);color:var(--navy);width:48px;height:48px;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:400;border:none;transition:background 0.15s}
+.chat-bubble:hover{background:var(--amber-dark)}
+
+/* TOAST */
+.toast{position:fixed;bottom:84px;right:24px;background:var(--navy);color:#fff;padding:12px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;border-left:4px solid var(--amber);z-index:500;opacity:0;transform:translateY(16px);transition:all 0.25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:center;justify-content:center}
+.modal-box{background:#fff;padding:28px;max-width:420px;width:90%;position:relative}
+.modal-close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted)}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;text-transform:uppercase;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+.modal-field label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+.modal-field select{width:100%;border:1px solid var(--border);padding:9px;font-family:'Hanken Grotesk',sans-serif;font-size:13px;outline:none;margin-bottom:12px}
+.modal-btn{width:100%;background:var(--amber);color:var(--navy);border:none;padding:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;margin-bottom:10px}
+.modal-result{display:none;background:var(--surface-low);border-left:3px solid var(--amber);padding:14px}
+.modal-result-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+.modal-result-val{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:30px;color:var(--navy)}
+.modal-result-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Stitch Why Section */
+.material-symbols-outlined { font-family: "Material Symbols Outlined"; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-feature-settings: "liga"; font-feature-settings: "liga"; -webkit-font-smoothing: antialiased;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .industrial-gradient {
+      background: linear-gradient(135deg, #0b1f3a 0%, #1e3a5f 100%);
+    }
+    .glass-sector-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .glass-sector-card:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      border-color: #feb234;
+    }
+</style>
+<style>
+body{background:#f9f9ff;}
+.cart-page{max-width:1100px;margin:0 auto;padding:32px 36px;display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start;}
+.cart-left{}
+.cart-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;color:#111;text-transform:uppercase;margin-bottom:20px;}
+.breadcrumb{padding:10px 36px;font-size:12px;color:#999;display:flex;align-items:center;gap:4px;border-bottom:1px solid #eee;background:#fff;max-width:100%;}
+.breadcrumb a{color:#999;text-decoration:none;}
+.breadcrumb a:hover{color:#815500;}
+.info-banner{background:#fff8e6;border-bottom:1px solid #fde68a;padding:14px 36px;display:flex;align-items:center;gap:12px;}
+.info-banner svg{flex-shrink:0;}
+.info-banner span{font-size:13px;color:#92400e;line-height:1.5;}
+
+/* Items table */
+.cart-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e8e8e8;}
+.cart-table th{text-align:left;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:#aaa;border-bottom:2px solid #f0f0f0;background:#fafafa;}
+.cart-table td{padding:14px 16px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+.cart-table tr:last-child td{border-bottom:none;}
+.item-name{font-weight:600;font-size:14px;color:#111;}
+.item-sku{font-family:'JetBrains Mono',monospace;font-size:10px;color:#aaa;margin-top:2px;}
+.qty-control{display:flex;align-items:center;border:1px solid #ddd;width:fit-content;}
+.qty-control button{width:32px;height:32px;background:#f5f5f5;border:none;font-size:16px;font-weight:300;cursor:pointer;color:#333;transition:background 0.1s;}
+.qty-control button:hover{background:#e8e8e8;}
+.qty-control input{width:44px;height:32px;text-align:center;border:none;border-left:1px solid #ddd;border-right:1px solid #ddd;font-size:13px;font-weight:600;color:#111;outline:none;}
+.item-price{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;color:#111;white-space:nowrap;}
+.item-unit{font-size:11px;color:#aaa;}
+.btn-remove{background:none;border:none;cursor:pointer;color:#ddd;padding:6px;transition:color 0.15s;}
+.btn-remove:hover{color:#e53e3e;}
+.cart-footer-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;margin-top:8px;}
+
+/* Summary */
+.cart-summary{background:#fff;border:1px solid #e8e8e8;padding:24px;position:sticky;top:80px;}
+.summary-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;text-transform:uppercase;color:#111;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;}
+.summary-line{display:flex;justify-content:space-between;font-size:13px;color:#555;margin-bottom:8px;}
+.summary-total{display:flex;justify-content:space-between;font-weight:700;font-size:17px;color:#111;padding-top:12px;border-top:2px solid #111;margin-top:8px;}
+.summary-note{font-size:11px;color:#aaa;margin:14px 0;line-height:1.7;padding:10px;background:#f9f9f9;border-left:3px solid #feb234;}
+.btn-order{background:#feb234;color:#0b1f3a;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.06em;text-transform:uppercase;padding:14px;width:100%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;transition:background 0.15s;}
+.btn-order:hover{background:#e09a20;}
+.btn-quote-out{background:transparent;color:#0b1f3a;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;padding:12px;width:100%;border:2px solid #0b1f3a;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:all 0.15s;margin-bottom:16px;}
+.btn-quote-out:hover{background:#0b1f3a;color:#fff;}
+.trust-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#777;margin-bottom:8px;}
+.trust-row svg{color:#feb234;flex-shrink:0;}
+
+/* Empty state */
+.cart-empty{background:#fff;border:1px solid #e8e8e8;padding:56px 32px;text-align:center;}
+.cart-empty p{font-size:14px;color:#999;margin-bottom:20px;}
+.cart-empty a{display:inline-block;background:#feb234;color:#0b1f3a;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;padding:12px 28px;text-decoration:none;}
+
+@media(max-width:768px){
+  .cart-page{grid-template-columns:1fr;padding:16px;}
+  .cart-summary{position:static;}
+  .cart-table th:nth-child(3),.cart-table td:nth-child(3){display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html#products" class="logo">SORBPACK</a>
+    <a href="index.html" class="nav-link active" style="margin-left:24px;">Shop</a>
+    
+    <div class="nav-search" style="margin-left:auto;margin-right:20px;">
+      <svg width="13" height="13" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search industrial catalog...">
+    </div>
+    <div class="nav-icons" style="gap:20px;">
+      <a href="cart.html" class="icon-btn">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-dot" id="cart-dot">0</span>
+      </a>
+      <a href="#" class="icon-btn">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+      <a href="mailto:info@sorbpack.com?subject=Quote Request" class="btn-quote" aria-label="Get a quote for container desiccants and cargo protection">Get Quote</a>
+    </div>
+  </div>
+</nav>
+
+<div class="breadcrumb">
+  <a href="index.html">Home</a> › <span>Shopping Cart</span>
+</div>
+
+<div class="info-banner">
+  <svg width="18" height="18" fill="none" stroke="#815500" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <span><strong>We are currently optimising our checkout.</strong> Your order will be sent to our team — we will reply within 1 hour with a payment link or invoice.</span>
+</div>
+
+<div class="cart-page">
+
+  <!-- LEFT: Cart Items -->
+  <div class="cart-left">
+    <div class="cart-title">Your Cart</div>
+    <div id="cart-container"></div>
+  </div>
+
+  <!-- RIGHT: Summary -->
+  <div class="cart-summary">
+    <div class="summary-title">Order Summary</div>
+    <div id="summary-lines"></div>
+    <div class="summary-total">
+      <span>Total excl. VAT</span>
+      <span id="total-price">€0,00</span>
+    </div>
+    <div class="summary-note">
+      Prices per pallet excl. VAT · Free shipping over €500 · EU delivery 2–4 business days
+    </div>
+    <button class="btn-order" onclick="placeOrder()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Place Order
+    </button>
+    <button class="btn-quote-out" onclick="requestQuote()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Request Bulk Quote
+    </button>
+    <div class="trust-row"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>DIN 55473 Certified</div>
+    <div class="trust-row"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>2–4 Day EU Delivery</div>
+    <div class="trust-row"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Free Shipping over €500</div>
+  </div>
+
+</div>
+
+<footer>
+  <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:40px;">
+
+    <!-- Brand -->
+    <div>
+      <span class="footer-logo">SORBPACK</span>
+      <div class="footer-desc">European B2B supplier of certified container desiccants, cargo lashing and anti-slip mats. Engineered for technical superiority and absolute reliability.</div>
+      <a href="https://wa.me/message/sorbpack" class="footer-whatsapp" style="margin-top:16px;">
+        <svg width="14" height="14" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp Us
+      </a>
+    </div>
+
+          <ul class="f-links">
+        <li><a href="index.html#products" onclick="sessionStorage.setItem('filter','desiccants')">Container Desiccants</a></li>
+        <li><a href="index.html#products" onclick="sessionStorage.setItem('filter','cargo')">Cargo Lashing Straps</a></li>
+        <li><a href="index.html#products" onclick="sessionStorage.setItem('filter','dunnage')">Dunnage Bags</a></li>
+        <li><a href="index.html#products" onclick="sessionStorage.setItem('filter','mats')">Anti-Slip Mats</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact + Newsletter -->
+    <div>
+      <div class="f-col-title">Newsletter</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:10px;line-height:1.5;">Get technical updates and supply chain news</div>
+      <div class="f-nl">
+        <input type="email" placeholder="Email address">
+        <button>→</button>
+      </div>
+      <div style="margin-top:20px;">
+        <div class="f-col-title">Contact</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.9;">
+          <a href="mailto:info@sorbpack.com?subject=Quote Request — Sorbpack" style="color:rgba(255,255,255,0.5);text-decoration:none;">info@sorbpack.com</a><br>
+          <a href="https://www.sorbpack.com" style="color:rgba(255,255,255,0.5);text-decoration:none;">www.sorbpack.com</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+<div class="f-bottom">
+    <div>© 2025 Sorbpack Industrial Packaging Solutions. All rights reserved.</div>
+    <div style="display:flex;gap:20px"><a href="#">Privacy Policy</a><a href="#">Terms of Trade</a></div>
+  </div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+// Load cart from localStorage
+var cart = [];
+try {
+  cart = JSON.parse(localStorage.getItem('sp-cart') || '[]');
+} catch(e) {
+  cart = [];
+}
+
+function saveCart() {
+  localStorage.setItem('sp-cart', JSON.stringify(cart));
+  updateBadge();
+}
+
+function updateBadge() {
+  var n = cart.reduce(function(s, i) { return s + i.qty; }, 0);
+  var d = document.getElementById('cart-dot');
+  if (d) d.textContent = n;
+}
+
+function fmt(n) {
+  if (!n || n === 0) return 'Contact for price';
+  return '€' + parseFloat(n).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function removeItem(sku) {
+  cart = cart.filter(function(i) { return i.sku !== sku; });
+  saveCart();
+  render();
+}
+
+function updateQty(sku, val) {
+  var item = cart.find(function(i) { return i.sku === sku; });
+  if (item) {
+    item.qty = Math.max(1, parseInt(val) || 1);
+    saveCart();
+    render();
+  }
+}
+
+function changeQty(sku, delta) {
+  var item = cart.find(function(i) { return i.sku === sku; });
+  if (item) {
+    item.qty = Math.max(1, item.qty + delta);
+    saveCart();
+    render();
+  }
+}
+
+function render() {
+  var container = document.getElementById('cart-container');
+  var summaryLines = document.getElementById('summary-lines');
+  var totalEl = document.getElementById('total-price');
+
+  if (!cart || cart.length === 0) {
+    container.innerHTML = '<div class="cart-empty"><p>Your cart is empty.</p><a href="index.html">← Continue Shopping</a></div>';
+    summaryLines.innerHTML = '';
+    totalEl.textContent = '€0,00';
+    return;
+  }
+
+  var total = 0;
+  var summaryHtml = '';
+
+  var tableHtml = '<table class="cart-table">';
+  tableHtml += '<thead><tr><th>Product</th><th>Unit Price</th><th>Quantity</th><th>Total</th><th></th></tr></thead><tbody>';
+
+  cart.forEach(function(item) {
+    var lineTotal = item.price * item.qty;
+    total += lineTotal;
+
+    tableHtml += '<tr>';
+    tableHtml += '<td><div class="item-name">' + item.name + '</div><div class="item-sku">' + item.sku + '</div></td>';
+    tableHtml += '<td><span class="item-price">' + fmt(item.price) + '</span></td>';
+    tableHtml += '<td><div class="qty-control">';
+    tableHtml += '<button onclick="changeQty('' + item.sku + '',-1)">−</button>';
+    tableHtml += '<input type="number" value="' + item.qty + '" min="1" onchange="updateQty('' + item.sku + '',this.value)" onblur="updateQty('' + item.sku + '',this.value)">';
+    tableHtml += '<button onclick="changeQty('' + item.sku + '',1)">+</button>';
+    tableHtml += '</div></td>';
+    tableHtml += '<td><span class="item-price">' + fmt(lineTotal) + '</span></td>';
+    tableHtml += '<td><button class="btn-remove" onclick="removeItem('' + item.sku + '')" title="Remove item">';
+    tableHtml += '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+    tableHtml += '</button></td>';
+    tableHtml += '</tr>';
+
+    summaryHtml += '<div class="summary-line"><span>' + item.name + ' ×' + item.qty + '</span><span>' + fmt(lineTotal) + '</span></div>';
+  });
+
+  tableHtml += '</tbody></table>';
+  tableHtml += '<div class="cart-footer-row"><a href="index.html" style="font-size:13px;color:#815500;text-decoration:none;">← Continue Shopping</a></div>';
+
+  container.innerHTML = tableHtml;
+  summaryLines.innerHTML = summaryHtml;
+  totalEl.textContent = fmt(total);
+}
+
+function buildBody() {
+  var lines = cart.map(function(i) {
+    return i.sku + ' %E2%80%94 ' + encodeURIComponent(i.name) + ' x' + i.qty + ' %3D ' + fmt(i.price * i.qty);
+  });
+  var total = cart.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+  lines.push('');
+  lines.push('TOTAL%3A ' + fmt(total));
+  return lines.join('%0A');
+}
+
+function placeOrder() {
+  if (!cart || cart.length === 0) {
+    alert('Your cart is empty. Please add products first.');
+    return;
+  }
+  var body = 'Hello%20Sorbpack%2C%0A%0AI%20would%20like%20to%20place%20the%20following%20order%3A%0A%0A' + buildBody() + '%0A%0APlease%20confirm%20availability%20and%20send%20me%20a%20payment%20link%20or%20invoice.%0A%0AMy%20contact%20details%3A%0AName%3A%20%0ACompany%3A%20%0APhone%3A%20%0ADelivery%20address%3A%20%0A%0AKind%20regards';
+  window.location.href = 'mailto:info@sorbpack.com?subject=Order%20Request%20%E2%80%94%20Sorbpack&body=' + body;
+}
+
+function requestQuote() {
+  if (!cart || cart.length === 0) {
+    alert('Your cart is empty. Please add products first.');
+    return;
+  }
+  var body = 'Hello%20Sorbpack%2C%0A%0AI%20would%20like%20a%20bulk%20quote%20for%3A%0A%0A' + buildBody() + '%0A%0AMy%20contact%20details%3A%0AName%3A%20%0ACompany%3A%20%0APhone%3A%20%0ADelivery%20address%3A%20%0A%0AKind%20regards';
+  window.location.href = 'mailto:info@sorbpack.com?subject=Bulk%20Quote%20Request%20%E2%80%94%20Sorbpack&body=' + body;
+}
+
+updateBadge();
+render();
+</script>
+
+</body>
+</html>

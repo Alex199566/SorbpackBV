@@ -416,8 +416,8 @@ body{background:#fff;}
 <body>
 <nav>
   <div class="nav-inner">
-    <a href="index.html" class="logo">SORBPACK</a>
-    <a href="products.html" class="nav-link active" style="margin-left:24px;">Shop</a>
+    <a href="index.html#products" class="logo">SORBPACK</a>
+    <a href="index.html" class="nav-link active" style="margin-left:24px;">Shop</a>
     
     <div class="nav-search" style="margin-left:auto;margin-right:20px;">
       <svg width="13" height="13" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -443,15 +443,15 @@ body{background:#fff;}
     <div class="sidebar-subtitle">Industrial Protection</div>
   </div>
   <div class="s-divider"></div>
-  <a href="products.html#desiccants" class="s-item active">
+  <a href="index.html#products" onclick="sessionStorage.setItem('filter','desiccants')" class="s-item active">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/></svg>
     Desiccants
   </a>
-  <a href="products.html#cargo" class="s-item">
+  <a href="index.html#products" onclick="sessionStorage.setItem('filter','cargo')" class="s-item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
     Cargo Securing
   </a>
-  <a href="products.html#dunnage" class="s-item">
+  <a href="index.html#products" onclick="sessionStorage.setItem('filter','dunnage')" class="s-item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>
     Dunnage Bags
   </a>
@@ -600,14 +600,11 @@ body{background:#fff;}
       </a>
     </div>
 
-    <!-- Catalogue -->
-    <div>
-      <div class="f-col-title">Catalogue</div>
-      <ul class="f-links">
-        <li><a href="products.html#desiccants">Container Desiccants</a></li>
-        <li><a href="products.html#cargo">Cargo Lashing Straps</a></li>
-        <li><a href="products.html#dunnage">Dunnage Bags</a></li>
-        <li><a href="products.html#mats">Anti-Slip Mats</a></li>
+          <ul class="f-links">
+        <li><a href="index.html#products" onclick="sessionStorage.setItem('filter','desiccants')">Container Desiccants</a></li>
+        <li><a href="index.html#products" onclick="sessionStorage.setItem('filter','cargo')">Cargo Lashing Straps</a></li>
+        <li><a href="index.html#products" onclick="sessionStorage.setItem('filter','dunnage')">Dunnage Bags</a></li>
+        <li><a href="index.html#products" onclick="sessionStorage.setItem('filter','mats')">Anti-Slip Mats</a></li>
       </ul>
     </div>
 
