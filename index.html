@@ -1504,30 +1504,47 @@ function renderCards() {
 
 
 <script>
-(function() {
-  var slides = [document.getElementById('hero-slide-0'), document.getElementById('hero-slide-1')];
-  var dots = document.querySelectorAll('.sdot');
-  var current = 0;
-  var timer;
-
-  function goTo(idx) {
-    slides[current].style.opacity = '0';
-    dots[current].style.width = '10px';
-    dots[current].style.background = '';
-    current = idx;
-    slides[current].style.opacity = '1';
-    dots[current].style.width = '28px';
-    dots[current].style.background = 'var(--amber)';
+var _heroSlides = [
+  {
+    badge: 'DIN 55473 Certified Protection',
+    title: 'Engineered Protection<br>for Global Logistics',
+    desc: 'Premium industrial desiccants and cargo securing solutions designed to eliminate moisture damage during intercontinental sea transport.'
+  },
+  {
+    badge: 'Complete Cargo Control',
+    title: 'Secure Every Load<br>Every Voyage',
+    desc: 'Heavy-duty lashing straps, anti-slip mats and container protection equipment trusted by freight forwarders across Europe and beyond.'
   }
+];
+var _heroIdx = 0;
+var _heroTimer = null;
 
-  window.switchSlide = function(idx) {
-    clearInterval(timer);
-    goTo(idx);
-    timer = setInterval(function() { goTo((current + 1) % slides.length); }, 6000);
-  };
+function switchSlide(n) {
+  var slides = [document.getElementById('hero-slide-0'), document.getElementById('hero-slide-1')];
+  slides.forEach(function(s, i) { s.style.opacity = (i === n) ? '1' : '0'; });
+  var dots = document.querySelectorAll('.sdot');
+  dots.forEach(function(d, i) {
+    d.style.width = (i === n) ? '28px' : '10px';
+    d.style.background = (i === n) ? 'var(--amber)' : 'rgba(255,255,255,0.4)';
+  });
+  var badge = document.getElementById('hero-badge');
+  var title = document.getElementById('hero-title');
+  var desc = document.getElementById('hero-desc');
+  if (badge) badge.textContent = _heroSlides[n].badge;
+  if (title) title.innerHTML = _heroSlides[n].title;
+  if (desc) desc.textContent = _heroSlides[n].desc;
+  _heroIdx = n;
+  clearInterval(_heroTimer);
+  _heroTimer = setInterval(function() {
+    switchSlide((_heroIdx + 1) % _heroSlides.length);
+  }, 6000);
+}
 
-  timer = setInterval(function() { goTo((current + 1) % slides.length); }, 6000);
-})();
+document.addEventListener('DOMContentLoaded', function() {
+  _heroTimer = setInterval(function() {
+    switchSlide((_heroIdx + 1) % _heroSlides.length);
+  }, 6000);
+});
 </script>
 
 </body>
