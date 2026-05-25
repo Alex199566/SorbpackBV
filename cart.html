@@ -424,6 +424,7 @@ body{background:#f9f9ff;}
 <script>
 // Sorbpack Cart Page
 function loadCart(){try{var r=localStorage.getItem('sp-cart');if(r)return JSON.parse(r);}catch(e){}return[];}
+var cart=loadCart();
 function saveCart(){localStorage.setItem('sp-cart',JSON.stringify(cart));updateBadge();}
 function updateBadge(){var n=cart.reduce(function(s,i){return s+i.qty;},0);var d=document.getElementById('cart-dot');if(d)d.textContent=n;}
 function fmt(n){
@@ -486,7 +487,6 @@ function requestQuote(){
   cart=loadCart();if(!cart||cart.length===0){alert('Your cart is empty.');return;}
   window.location.href='mailto:info@sorbpack.com?subject='+encodeURIComponent('Bulk Quote Request - Sorbpack')+'&body='+encodeURIComponent('Hello Sorbpack,\n\nI would like a bulk quote for:\n\n')+buildBody()+encodeURIComponent('\n\nMy contact details:\nName: \nCompany: \nPhone: \nDelivery address: \n\nKind regards');
 }
-var cart=loadCart();
 document.addEventListener('DOMContentLoaded',function(){render();});
 </script>
 
