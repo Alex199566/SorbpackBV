@@ -434,9 +434,9 @@ function fmt(n){
   parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
   return '€'+parts[0]+','+parts[1];
 }
-function removeItem(sku){cart=cart.filter(function(i){return i.sku!==sku;});saveCart();render();}
-function updateQty(sku,val){var item=cart.find(function(i){return i.sku===sku;});if(item){item.qty=Math.max(1,parseInt(val)||1);saveCart();render();}}
-function changeQty(sku,delta){var item=cart.find(function(i){return i.sku===sku;});if(item){item.qty=Math.max(1,item.qty+delta);saveCart();render();}}
+window.removeItem=function(sku){cart=loadCart();cart=cart.filter(function(i){return i.sku!==sku;});saveCart();render();}
+window.updateQty=function(sku,val){cart=loadCart();var item=cart.find(function(i){return i.sku===sku;});if(item){item.qty=Math.max(1,parseInt(val)||1);saveCart();render();}}
+window.changeQty=function(sku,delta){cart=loadCart();var item=cart.find(function(i){return i.sku===sku;});if(item){item.qty=Math.max(1,item.qty+delta);saveCart();render();}}
 function render(){
   cart=loadCart();updateBadge();
   var container=document.getElementById('cart-container');
