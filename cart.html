@@ -451,7 +451,8 @@ function fmt(n) {
   return '€' + parseFloat(n).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
-function removeItem(sku) {
+function removeItem(el) {
+  var sku = el.dataset ? el.dataset.sku : el;
   cart = cart.filter(function(i) { return i.sku !== sku; });
   saveCart();
   render();
@@ -466,13 +467,20 @@ function updateQty(sku, val) {
   }
 }
 
-function changeQty(sku, delta) {
+function changeQty(el) {
+  var sku = el.dataset.sku;
+  var delta = parseInt(el.dataset.delta);
   var item = cart.find(function(i) { return i.sku === sku; });
   if (item) {
     item.qty = Math.max(1, item.qty + delta);
     saveCart();
     render();
   }
+}
+
+function updateQtyEl(el) {
+  var sku = el.dataset.sku;
+  updateQty(sku, el.value);
 }
 
 function render() {
@@ -499,22 +507,23 @@ function render() {
   cart.forEach(function(item) {
     var lineTotal = (item.price || 0) * item.qty;
     total += lineTotal;
+    var sku = item.sku;
 
     tableHtml += '<tr>';
-    tableHtml += '<td><div class="item-name">' + item.name + '</div><div class="item-sku">' + item.sku + '</div></td>';
+    tableHtml += '<td><div class="item-name">' + item.name + '</div><div class="item-sku">' + sku + '</div></td>';
     tableHtml += '<td><span class="item-price">' + fmt(item.price) + '</span></td>';
     tableHtml += '<td><div class="qty-control">';
-    tableHtml += '<button onclick="changeQty('' + item.sku + '',-1)">&#8722;</button>';
-    tableHtml += '<input type="number" value="' + item.qty + '" min="1" onchange="updateQty('' + item.sku + '',this.value)">';
-    tableHtml += '<button onclick="changeQty('' + item.sku + '',1)">+</button>';
+    tableHtml += '<button onclick="changeQty(this)" data-sku="' + sku + '" data-delta="-1">&#8722;</button>';
+    tableHtml += '<input type="number" value="' + item.qty + '" min="1" data-sku="' + sku + '" onchange="updateQtyEl(this)">';
+    tableHtml += '<button onclick="changeQty(this)" data-sku="' + sku + '" data-delta="1">+</button>';
     tableHtml += '</div></td>';
     tableHtml += '<td><span class="item-price">' + fmt(lineTotal) + '</span></td>';
-    tableHtml += '<td><button class="btn-remove" onclick="removeItem('' + item.sku + '')" title="Remove">';
+    tableHtml += '<td><button class="btn-remove" onclick="removeItem(this)" data-sku="' + sku + '" title="Remove">';
     tableHtml += '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
     tableHtml += '</button></td>';
     tableHtml += '</tr>';
 
-    summaryHtml += '<div class="summary-line"><span>' + item.name + ' ×' + item.qty + '</span><span>' + fmt(lineTotal) + '</span></div>';
+    summaryHtml += '<div class="summary-line"><span>' + item.name + ' \u00d7' + item.qty + '</span><span>' + fmt(lineTotal) + '</span></div>';
   });
 
   tableHtml += '</tbody></table>';
