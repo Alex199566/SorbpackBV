@@ -453,7 +453,7 @@ function render(){
   var th='<table class="cart-table"><thead><tr><th>Product</th><th>Unit Price</th><th>Quantity</th><th>Total</th><th></th></tr></thead><tbody>';
   cart.forEach(function(item){
     var lt=(item.price||0)*item.qty; total+=lt;
-    var s=JSON.stringify(item.sku);
+    var s=item.sku;
     th+='<tr>';
     th+='<td><div class="item-name">'+item.name+'</div><div class="item-sku">'+item.sku+'</div></td>';
     th+='<td><span class="item-price">'+fmt(item.price)+'</span></td>';
