@@ -458,12 +458,12 @@ function render(){
     th+='<td><div class="item-name">'+item.name+'</div><div class="item-sku">'+item.sku+'</div></td>';
     th+='<td><span class="item-price">'+fmt(item.price)+'</span></td>';
     th+='<td><div class="qty-control">';
-    th+='<button onclick="changeQty('+s+',-1)">&#8722;</button>';
-    th+='<input type="number" value="'+item.qty+'" min="1" onchange="updateQty('+s+',this.value)">';
-    th+='<button onclick="changeQty('+s+',1)">+</button>';
+    th+='<button onclick="changeQty(\''+s+'\',-1)">&#8722;</button>';
+    th+='<input type="number" value="'+item.qty+'" min="1" onchange="updateQty(\''+s+'\',this.value)">';
+    th+='<button onclick="changeQty(\''+s+'\',1)">+</button>';
     th+='</div></td>';
     th+='<td><span class="item-price">'+fmt(lt)+'</span></td>';
-    th+='<td><button class="btn-remove" onclick="removeItem('+s+')" title="Remove">';
+    th+='<td><button class="btn-remove" onclick="removeItem(\''+s+'\')" title="Remove">';
     th+='<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
     th+='</button></td></tr>';
     summaryHtml+='<div class="summary-line"><span>'+item.name+' ×'+item.qty+'</span><span>'+fmt(lt)+'</span></div>';
