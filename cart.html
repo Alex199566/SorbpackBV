@@ -422,178 +422,72 @@ body{background:#f9f9ff;}
 <div class="toast" id="toast"></div>
 
 <script>
-// Read cart - try multiple times to handle timing
-function loadCart() {
-  try {
-    var raw = localStorage.getItem('sp-cart');
-    if (raw && raw !== 'null' && raw !== '[]') {
-      return JSON.parse(raw);
-    }
-  } catch(e) {}
-  return [];
+// Sorbpack Cart Page
+function loadCart(){try{var r=localStorage.getItem('sp-cart');if(r)return JSON.parse(r);}catch(e){}return[];}
+function saveCart(){localStorage.setItem('sp-cart',JSON.stringify(cart));updateBadge();}
+function updateBadge(){var n=cart.reduce(function(s,i){return s+i.qty;},0);var d=document.getElementById('cart-dot');if(d)d.textContent=n;}
+function fmt(n){
+  if(!n||n===0)return'Contact for price';
+  var s=parseFloat(n).toFixed(2);
+  var parts=s.split('.');
+  parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  return '€'+parts[0]+','+parts[1];
 }
-
-var cart = loadCart();
-
-function saveCart() {
-  localStorage.setItem('sp-cart', JSON.stringify(cart));
-  updateBadge();
-}
-
-function updateBadge() {
-  var n = cart.reduce(function(s, i) { return s + i.qty; }, 0);
-  var d = document.getElementById('cart-dot');
-  if (d) d.textContent = n;
-}
-
-function fmt(n) {
-  if (!n || n === 0) return 'Contact for price';
-  return '€' + parseFloat(n).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-function removeItem(el) {
-  var sku = el.dataset ? el.dataset.sku : el;
-  cart = cart.filter(function(i) { return i.sku !== sku; });
-  saveCart();
-  render();
-}
-
-function updateQty(sku, val) {
-  var item = cart.find(function(i) { return i.sku === sku; });
-  if (item) {
-    item.qty = Math.max(1, parseInt(val) || 1);
-    saveCart();
-    render();
-  }
-}
-
-function changeQty(el) {
-  var sku = el.dataset.sku;
-  var delta = parseInt(el.dataset.delta);
-  var item = cart.find(function(i) { return i.sku === sku; });
-  if (item) {
-    item.qty = Math.max(1, item.qty + delta);
-    saveCart();
-    render();
-  }
-}
-
-function updateQtyEl(el) {
-  var sku = el.dataset.sku;
-  updateQty(sku, el.value);
-}
-
-function render() {
-  var container = document.getElementById('cart-container');
-  var summaryLines = document.getElementById('summary-lines');
-  var totalEl = document.getElementById('total-price');
-
-  // Reload cart fresh in case it was updated
-  cart = loadCart();
-  updateBadge();
-
-  if (!cart || cart.length === 0) {
-    container.innerHTML = '<div class="cart-empty"><p>Your cart is empty.</p><a href="index.html">&#8592; Continue Shopping</a></div>';
-    if (summaryLines) summaryLines.innerHTML = '';
-    if (totalEl) totalEl.textContent = '€0,00';
+function removeItem(sku){cart=cart.filter(function(i){return i.sku!==sku;});saveCart();render();}
+function updateQty(sku,val){var item=cart.find(function(i){return i.sku===sku;});if(item){item.qty=Math.max(1,parseInt(val)||1);saveCart();render();}}
+function changeQty(sku,delta){var item=cart.find(function(i){return i.sku===sku;});if(item){item.qty=Math.max(1,item.qty+delta);saveCart();render();}}
+function render(){
+  cart=loadCart();updateBadge();
+  var container=document.getElementById('cart-container');
+  var summaryLines=document.getElementById('summary-lines');
+  var totalEl=document.getElementById('total-price');
+  if(!container)return;
+  if(!cart||cart.length===0){
+    container.innerHTML='<div class="cart-empty"><p>Your cart is empty.</p><a href="index.html">&#8592; Continue Shopping</a></div>';
+    if(summaryLines)summaryLines.innerHTML='';
+    if(totalEl)totalEl.textContent='€0,00';
     return;
   }
-
-  var total = 0;
-  var summaryHtml = '';
-  var tableHtml = '<table class="cart-table">';
-  tableHtml += '<thead><tr><th>Product</th><th>Unit Price</th><th>Quantity</th><th>Total</th><th></th></tr></thead><tbody>';
-
-  cart.forEach(function(item) {
-    var lineTotal = (item.price || 0) * item.qty;
-    total += lineTotal;
-    var sku = item.sku;
-
-    tableHtml += '<tr>';
-    tableHtml += '<td><div class="item-name">' + item.name + '</div><div class="item-sku">' + sku + '</div></td>';
-    tableHtml += '<td><span class="item-price">' + fmt(item.price) + '</span></td>';
-    tableHtml += '<td><div class="qty-control">';
-    tableHtml += '<button onclick="changeQty(this)" data-sku="' + sku + '" data-delta="-1">&#8722;</button>';
-    tableHtml += '<input type="number" value="' + item.qty + '" min="1" data-sku="' + sku + '" onchange="updateQtyEl(this)">';
-    tableHtml += '<button onclick="changeQty(this)" data-sku="' + sku + '" data-delta="1">+</button>';
-    tableHtml += '</div></td>';
-    tableHtml += '<td><span class="item-price">' + fmt(lineTotal) + '</span></td>';
-    tableHtml += '<td><button class="btn-remove" onclick="removeItem(this)" data-sku="' + sku + '" title="Remove">';
-    tableHtml += '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
-    tableHtml += '</button></td>';
-    tableHtml += '</tr>';
-
-    summaryHtml += '<div class="summary-line"><span>' + item.name + ' \u00d7' + item.qty + '</span><span>' + fmt(lineTotal) + '</span></div>';
+  var total=0,summaryHtml='';
+  var th='<table class="cart-table"><thead><tr><th>Product</th><th>Unit Price</th><th>Quantity</th><th>Total</th><th></th></tr></thead><tbody>';
+  cart.forEach(function(item){
+    var lt=(item.price||0)*item.qty; total+=lt;
+    var s=JSON.stringify(item.sku);
+    th+='<tr>';
+    th+='<td><div class="item-name">'+item.name+'</div><div class="item-sku">'+item.sku+'</div></td>';
+    th+='<td><span class="item-price">'+fmt(item.price)+'</span></td>';
+    th+='<td><div class="qty-control">';
+    th+='<button onclick="changeQty('+s+',-1)">&#8722;</button>';
+    th+='<input type="number" value="'+item.qty+'" min="1" onchange="updateQty('+s+',this.value)">';
+    th+='<button onclick="changeQty('+s+',1)">+</button>';
+    th+='</div></td>';
+    th+='<td><span class="item-price">'+fmt(lt)+'</span></td>';
+    th+='<td><button class="btn-remove" onclick="removeItem('+s+')" title="Remove">';
+    th+='<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+    th+='</button></td></tr>';
+    summaryHtml+='<div class="summary-line"><span>'+item.name+' ×'+item.qty+'</span><span>'+fmt(lt)+'</span></div>';
   });
-
-  tableHtml += '</tbody></table>';
-  tableHtml += '<div style="margin-top:12px;"><a href="index.html" style="font-size:13px;color:#815500;text-decoration:none;">&#8592; Continue Shopping</a></div>';
-
-  container.innerHTML = tableHtml;
-  if (summaryLines) summaryLines.innerHTML = summaryHtml;
-  if (totalEl) totalEl.textContent = fmt(total);
+  th+='</tbody></table><div style="margin-top:12px;"><a href="index.html" style="font-size:13px;color:#815500;text-decoration:none;">&#8592; Continue Shopping</a></div>';
+  container.innerHTML=th;
+  if(summaryLines)summaryLines.innerHTML=summaryHtml;
+  if(totalEl)totalEl.textContent=fmt(total);
 }
-
-function buildBody() {
-  var lines = cart.map(function(i) {
-    return encodeURIComponent(i.sku + ' - ' + i.name + ' x' + i.qty + ' = ' + fmt(i.price * i.qty));
-  });
-  var total = cart.reduce(function(s, i) { return s + (i.price || 0) * i.qty; }, 0);
-  lines.push(encodeURIComponent(''));
-  lines.push(encodeURIComponent('TOTAL: ' + fmt(total)));
+function buildBody(){
+  var lines=cart.map(function(i){return encodeURIComponent(i.sku+' - '+i.name+' x'+i.qty+' = '+fmt(i.price*i.qty));});
+  var total=cart.reduce(function(s,i){return s+(i.price||0)*i.qty;},0);
+  lines.push(encodeURIComponent(''));lines.push(encodeURIComponent('TOTAL: '+fmt(total)));
   return lines.join('%0A');
 }
-
-function placeOrder() {
-  cart = loadCart();
-  if (!cart || cart.length === 0) {
-    alert('Your cart is empty. Please add products first.');
-    return;
-  }
-  var subject = encodeURIComponent('Order Request - Sorbpack');
-  var body = encodeURIComponent('Hello Sorbpack,
-
-I would like to place the following order:
-
-') + buildBody() + encodeURIComponent('
-
-Please confirm and send payment link or invoice.
-
-My contact details:
-Name: 
-Company: 
-Phone: 
-Delivery address: 
-
-Kind regards');
-  window.location.href = 'mailto:info@sorbpack.com?subject=' + subject + '&body=' + body;
+function placeOrder(){
+  cart=loadCart();if(!cart||cart.length===0){alert('Your cart is empty.');return;}
+  window.location.href='mailto:info@sorbpack.com?subject='+encodeURIComponent('Order Request - Sorbpack')+'&body='+encodeURIComponent('Hello Sorbpack,\n\nI would like to place the following order:\n\n')+buildBody()+encodeURIComponent('\n\nMy contact details:\nName: \nCompany: \nPhone: \nDelivery address: \n\nKind regards');
 }
-
-function requestQuote() {
-  cart = loadCart();
-  if (!cart || cart.length === 0) {
-    alert('Your cart is empty. Please add products first.');
-    return;
-  }
-  var subject = encodeURIComponent('Bulk Quote Request - Sorbpack');
-  var body = encodeURIComponent('Hello Sorbpack,
-
-I would like a bulk quote for:
-
-') + buildBody() + encodeURIComponent('
-
-My contact details:
-Name: 
-Company: 
-Phone: 
-Delivery address: 
-
-Kind regards');
-  window.location.href = 'mailto:info@sorbpack.com?subject=' + subject + '&body=' + body;
+function requestQuote(){
+  cart=loadCart();if(!cart||cart.length===0){alert('Your cart is empty.');return;}
+  window.location.href='mailto:info@sorbpack.com?subject='+encodeURIComponent('Bulk Quote Request - Sorbpack')+'&body='+encodeURIComponent('Hello Sorbpack,\n\nI would like a bulk quote for:\n\n')+buildBody()+encodeURIComponent('\n\nMy contact details:\nName: \nCompany: \nPhone: \nDelivery address: \n\nKind regards');
 }
-
-// Run immediately
-render();
+var cart=loadCart();
+document.addEventListener('DOMContentLoaded',function(){render();});
 </script>
 
 </body>
